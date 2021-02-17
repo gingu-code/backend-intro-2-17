@@ -110,10 +110,12 @@ module.exports = {
 
       let savedUser = await createdUser.save();
 
-      res.status(200).json({
-        message: "success",
-        user: savedUser,
-      });
+      res.render("sign-up", { success: true });
+
+      // res.status(200).json({
+      //   message: "success",
+      //   user: savedUser,
+      // });
     } catch (error) {
       res.status(500).json({
         message: "error",
@@ -193,9 +195,14 @@ module.exports = {
       let foundUser = await User.findOne({ email: req.body.email });
 
       if (!foundUser) {
-        res.status(404).json({
-          message: "failure",
+        res.render("login", {
+          error: {
+            message: "Sorry, user does not exists please go signup!",
+          },
         });
+        // res.status(404).json({
+        //   message: "Sorry, user does not exists please go signup!",
+        // });
       } else {
         let isPasswordTrue = await bcrypt.compare(
           req.body.password,
@@ -203,15 +210,29 @@ module.exports = {
         );
 
         if (isPasswordTrue) {
-          res.json({
-            message: "success",
-            successMessage: "Logged In!",
-          });
+          req.session.user = {
+            _id: foundUser._id,
+            email: foundUser.email,
+          };
+
+          console.log(req.session);
+
+          res.render("home", { user: foundUser.email });
+
+          // res.json({
+          //   message: "success",
+          //   successMessage: "Logged In!",
+          // });
         } else {
-          res.status(500).json({
-            message: "failure",
-            successMessage: "please check your email and password",
+          res.render("login", {
+            error: {
+              message: "Sorry, please check your email and password",
+            },
           });
+          // res.status(500).json({
+          //   message: "failure",
+          //   successMessage: "please check your email and password",
+          // });
         }
       }
     } catch (error) {

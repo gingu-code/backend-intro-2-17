@@ -34,27 +34,29 @@ function checkSignupDataType(req, res, next) {
   }
 
   if (checkForSymbol(firstName)) {
-    errorObj.firstName = "First Name cannot contains  special characters";
+    errorObj.firstName = "First Name cannot contains special characters";
   }
 
   if (checkForSymbol(lastName)) {
     errorObj.lastName = "Last Name cannot contains  special characters";
   }
 
-  if (!isStrongPassword(password)) {
-    errorObj.password =
-      "password must minimum 8 characters and must contain an uppercase, a lower case, a number and special character !@#$%^&*()<>{}";
-  }
+  //Uncomment this during production or further testing
+  // if (!isStrongPassword(password)) {
+  //   errorObj.password =
+  //     "password must minimum 8 characters and must contain an uppercase, a lower case, a number and special character !@#$%^&*()<>{}";
+  // }
 
   if (!checkIsEmail(email)) {
     errorObj.email = "Email must be in email format!";
   }
 
   if (Object.keys(errorObj).length > 0) {
-    res.status(500).json({
-      message: "Error",
-      data: errorObj,
-    });
+    res.render("sign-up", { error: errorObj });
+    // res.status(500).json({
+    //   message: "Error",
+    //   data: errorObj,
+    // });
   } else {
     //It means go to the next function
     next();

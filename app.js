@@ -4,11 +4,14 @@ const express = require("express");
 const path = require("path");
 const cookieParser = require("cookie-parser");
 const logger = require("morgan");
+const session = require("express-session");
 
 const mongoose = require("mongoose");
 
+require("dotenv").config();
+
 mongoose
-  .connect("mongodb://localhost:27017/backend-intro", {
+  .connect(process.env.MONGODB_URI, {
     useNewUrlParser: true,
     useUnifiedTopology: true,
   })
@@ -33,6 +36,22 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, "public")));
+
+app.use(
+  session({
+    secret: process.env.SESSION_SECRET,
+    resave: false,
+    saveUninitialized: false,
+    cookie: { maxAge: 60 * 60 * 1000 },
+  })
+);
+
+app.use((req, res, next) => {
+  res.locals.error = null;
+  res.locals.success = null;
+
+  next();
+});
 
 app.use("/", indexRouter);
 app.use("/users", usersRouter);
